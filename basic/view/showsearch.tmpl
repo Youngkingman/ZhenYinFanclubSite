@@ -1,0 +1,96 @@
+{{ define "view/showsearch.tmpl" }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        form{line-height: 25px;text-align: center;}
+        canvas{width:100%;height:100%;border:1px solid #000000;text-align: center;}
+        .show_area{width:1000px;height:400px;border:1px solid #000000;margin:10px;padding: 20px;}
+        .canvas_area{width:100%;height:90%;text-align: center;}
+        .bt{line-height: 15px;margin:10px;text-align: center;}
+    </style>
+</head>
+<body>
+    <div class = "form_area">
+        <form action="/selectdata" method = "POST" >
+            障碍物密度:<br>
+            <input type="text" name="dense" value="0.5" placeholder="必须为0~1浮点数">
+            <br>
+            地图宽度:<br>
+            <input type="text" name="cols" value="100" placeholder="必须为整数">
+            <br>
+            地图高度:<br>
+            <input type="text" name="rows" value="100" placeholder="必须为整数">
+            <br>
+            代价下界:<br>
+            <input type="text" name="costL" value="1" placeholder="必须为整数">
+            <br>
+            代价上界:<br>
+            <input type="text" name="costH" value="9" placeholder="必须为整数">
+            <br>
+            起点x:<br>
+            <input type="text" name="startX" value="0">
+            <br>
+            起点y:<br>
+            <input type="text" name="startY" value="0">
+            <br>
+            终点x:<br>
+            <input type="text" name="targetX" value="80">
+            <br>
+            终点y:<br>
+            <input type="text" name="targetY" value="80">
+            <br>
+            h值计算方法:<br>
+            <select name="method">
+                <option value="halmi">曼哈顿距离</option>
+                <option value="euler">欧拉距离</option>
+            </select>
+            <br><br>
+            <input type="submit" value="Submit">
+        </form> 
+    </div>
+    
+    <div class = "pic_area">
+
+        <div class="show_area">
+            <div class = "canvas_area">
+                <canvas id="Dijkstra" ></canvas>
+            </div>   
+            <div class = "bt"> 
+                <input id="bt1"  type = "button" value = "绘制Dijkstra算法图像">
+            </div>
+        </div>
+       
+        <div class = "show_area">
+            <div class = "canvas_area">
+                <canvas id="Astar"></canvas>
+            </div>
+            <div class = "bt"> 
+                <input id="bt2" type = "button" value = "绘制A*算法图像"style="text-align:center;">
+            </div>
+        </div>
+        
+        <div class = "show_area">
+            <div class = "canvas_area">
+                <canvas id="DijkstraAstar"></canvas>
+            </div>
+            <div class = "bt"> 
+                <input id="bt3" type = "button" value = "绘制DijkstraA*算法图像"style="text-align:center;">
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    var dij=document.getElementById("Dijkstra");
+    var ast=document.getElementById("Astar");
+    var dijast=document.getElementById("DijkstraAstar");
+    var ctx_dij=dij.getContext("2d");
+    var ctx_ast=ast.getContext("2d");
+    var ctx_dijast=dijast.getContext("2d");
+</script>
+</html>
+{{ end }}
