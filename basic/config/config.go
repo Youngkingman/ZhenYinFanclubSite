@@ -1,14 +1,13 @@
 package config
 
 import (
+	"basic/memutils/mysql"
 	"basic/memutils/redis"
 	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
-
-	"github.com/go-sql-driver/mysql"
 )
 
 type site struct {
@@ -23,6 +22,7 @@ type configuration struct {
 	RedisConfig redis.Config `json:"redis"`
 	MySqlConfig mysql.Config `json:"mysql"`
 	Site        site         `json"site"`
+	Debug       bool         `json:"debug"`
 }
 
 //Current the current configuration
@@ -30,7 +30,34 @@ var Current configuration
 
 //Init init the configuration
 func init() {
-	Current = configuration{}
+	Current = configuration{
+		RedisConfig: redis.Config{
+			Host:     "",
+			Port:     0,
+			Auth:     "",
+			Db:       0,
+			PoolSize: 0,
+		},
+		MySqlConfig: mysql.Config{
+			Host:         "127.0.0.1",
+			Port:         3306,
+			User:         "root",
+			Password:     "root",
+			Db:           "zhenyinfanclub",
+			Dbprefix:     "czy_",
+			ConnLifeTime: 40,
+			MaxIdleConn:  2,
+			MaxOpenConn:  30,
+		},
+		Site: site{
+			SiteName:        "",
+			Description:     "",
+			URL:             "",
+			Keywords:        "",
+			DefaultTimezone: "",
+		},
+		Debug: false,
+	}
 
 	basePath, _ := exec.LookPath(os.Args[0])
 	path, _ := filepath.Abs(basePath)

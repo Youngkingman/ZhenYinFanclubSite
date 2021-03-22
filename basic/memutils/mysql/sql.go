@@ -12,6 +12,16 @@ import (
 	"github.com/jmoiron/sqlx/reflectx"
 )
 
+var s IDB
+
+func InitSQL(config Config) {
+	ss, er := New(config)
+	if er != nil {
+		panic(er)
+	}
+	s = ss
+}
+
 //Config Mysql的配置
 type Config struct {
 	Host         string `json:"host"`
@@ -97,4 +107,23 @@ func (sql sqlServer) UnPrefix(str string) string {
 //GetPrefix get sql prefix
 func (sql sqlServer) GetPrefix() string {
 	return sql.Config.Dbprefix
+}
+
+func GetDB() *sqlx.DB {
+	return s.GetDB()
+}
+
+//Prefix change the relative sql to real sql with prefix
+func Prefix(sql string) string {
+	return s.Prefix(sql)
+}
+
+//UnPrefix change the real sql with prefix to relative one
+func UnPrefix(sql string) string {
+	return s.UnPrefix(sql)
+}
+
+//GetMysql GetMysql
+func GetMysql() IDB {
+	return s
 }

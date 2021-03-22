@@ -25,5 +25,10 @@ func SetupRouter() *gin.Engine {
 		v1.POST("/selectdata", controllers.RecordSelectData)
 	}
 
+	v2 := r.Group("/u")
+	{
+		v2.GET("/test", controllers.GetUserInfo)
+	}
+
 	return r
 }
