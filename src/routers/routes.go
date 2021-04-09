@@ -7,8 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// 通过字典模拟 DB var db = make(map[string]string)
-
 func SetupRouter() *gin.Engine {
 	// 初始化 Gin 框架默认实例，该实例包含了路由、中间件以及配置信息
 	r := gin.Default()
