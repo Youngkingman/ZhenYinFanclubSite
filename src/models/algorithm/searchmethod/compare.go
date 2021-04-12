@@ -36,9 +36,9 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		c1, s1, t1 := DijkstraForGrid(feasibleMap, retMap, start, end)
 		fmt.Println("Task of Dijkstra serch is over,the total step is", s1, "and the cost is", c1)
 		data := make(map[string]interface{})
-		data["cost of dijkstra"] = c1
-		data["total step of dijkstra"] = s1
-		data["tract of dijkstra"] = t1
+		data["costDi"] = c1
+		data["totalDi"] = s1
+		data["tractDi"] = t1
 		if SaveDataFlag {
 			datatrans.OutputTract(filename+"_Dijkstra_", t1, id)
 		}
@@ -49,9 +49,9 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		c2, s2, t2 := AstarSearch(feasibleMap, retMap, start, end, HalmintanDistance)
 		fmt.Println("Task of A* search is over, the total step is", s2, "and the cost is", c2)
 		data := make(map[string]interface{})
-		data["cost of A*"] = c2
-		data["total step of A*"] = s2
-		data["tract of A*"] = t2
+		data["costAs"] = c2
+		data["totalAs"] = s2
+		data["tractAs"] = t2
 		if SaveDataFlag {
 			datatrans.OutputTract(filename+"_Astar_", t2, id)
 		}
@@ -62,9 +62,9 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		c3, s3, t3 := AstarSearchDijkstra(feasibleMap, retMap, start, end, HalmintanDistance)
 		fmt.Println("Task of Dijkstra with A* is over, the total step is", s3, "and the cost is", c3)
 		data := make(map[string]interface{})
-		data["cost of DijkstraA*"] = c3
-		data["total step of DijkstraA*"] = s3
-		data["tract of DijkstraA*"] = t3
+		data["costMOA"] = c3
+		data["totalMOA"] = s3
+		data["tractMOA"] = t3
 		if SaveDataFlag {
 			datatrans.OutputTract(filename+"_DijkstraAstar_", t3, id)
 		}
@@ -75,9 +75,9 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		c3, s3, t3 := BfsSearch(feasibleMap, retMap, start, end)
 		fmt.Println("Task of bfs is over, the total step is", s3, "and the cost is", c3)
 		data := make(map[string]interface{})
-		data["cost of bFS"] = c3
-		data["total step of BFS"] = s3
-		data["tract of BFS"] = t3
+		data["costBFS"] = c3
+		data["totalBFS"] = s3
+		data["tractBFS"] = t3
 		if SaveDataFlag {
 			datatrans.OutputTract(filename+"_bfs_", t3, id)
 		}

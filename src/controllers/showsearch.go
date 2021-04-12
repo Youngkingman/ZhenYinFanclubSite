@@ -8,16 +8,16 @@ import (
 )
 
 type CompareParam struct {
-	Dense        float64 `form:"dense"`
-	Cols         int     `form:"cols"`
-	Rows         int     `form:"rows"`
-	Method       string  `form:"method"`
-	CostLow      int     `form:"costL"`
-	CostHigh     int     `form:"costH"`
-	StartPointX  int     `form:"startX"`
-	StartPointY  int     `form:"startY"`
-	TargetPointX int     `form:"targetX"`
-	TargetPointY int     `form:"targetX"`
+	Dense        float64 `json:"dense" `
+	Cols         int     `json:"cols"`
+	Rows         int     `json:"rows"`
+	Method       string  `json:"method"`
+	CostLow      int     `json:"costL"`
+	CostHigh     int     `json:"costH"`
+	StartPointX  int     `json:"startX"`
+	StartPointY  int     `json:"startY"`
+	TargetPointX int     `json:"targetX"`
+	TargetPointY int     `json:"targetY"`
 }
 
 func GetSearchPage(c *gin.Context) {
@@ -29,11 +29,12 @@ func GetSearchPage(c *gin.Context) {
 func RecordSelectData(c *gin.Context) {
 	var formdata CompareParam
 	// ShouldBind 和 Bind 类似，不过会在出错时退出而不是返回400状态码
-	c.ShouldBind(&formdata)
+	c.BindJSON(&formdata)
 	retData := algorithm.Compare(formdata.Rows, formdata.Cols,
 		formdata.Dense, formdata.CostLow, formdata.CostHigh,
 		[2]int{formdata.StartPointX, formdata.StartPointY},
 		[2]int{formdata.TargetPointX, formdata.TargetPointY}, 0,
 	)
+
 	c.JSON(200, retData)
 }

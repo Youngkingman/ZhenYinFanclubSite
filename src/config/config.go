@@ -21,7 +21,7 @@ type site struct {
 type configuration struct {
 	RedisConfig redis.Config `json:"redis"`
 	MySqlConfig mysql.Config `json:"mysql"`
-	Site        site         `json"site"`
+	Site        site         `json:"site"`
 	Debug       bool         `json:"debug"`
 }
 
