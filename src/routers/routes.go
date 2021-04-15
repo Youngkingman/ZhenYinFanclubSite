@@ -13,7 +13,8 @@ func SetupRouter() *gin.Engine {
 	//加载模板静态资源
 	r.Static("/static", "./static")
 	//加载模板路由
-	//r.LoadHTMLGlob("view/*")
+	r.LoadHTMLGlob("view/*")
+	r.GET("/show", controllers.GetSearchPage)
 	// Ping 测试路由
 	r.GET("/ping", func(c *gin.Context) {
 		c.String(http.StatusOK, "pong")

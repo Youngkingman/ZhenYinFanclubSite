@@ -40,9 +40,22 @@
             text-align: center;
         }
         #myapp{
-            background: url(/static/bg.gif);
-            background-size: 20% 20%;
+            /*background: url(/static/bg.gif);
+            background-size: 20% 20%;*/
         } 
+        .bti{
+            width: 143px;
+            height: 35px;
+            line-height: 14px;
+            font-size: 14px;
+            background: url(/static/buttonbg.jpg) no-repeat left top;
+            color: #959595;
+            padding: 0px 0px 2px 14px;
+            font-family: "Arial","Tahoma","微软雅黑","雅黑";
+            border: 0px;
+            vertical-align: middle;
+            margin: 8px;
+        }
     </style>
 </head>
 <script src="https://cdn.bootcss.com/vue/2.5.2/vue.min.js"></script>
@@ -84,38 +97,47 @@
                     <option value="halmi">曼哈顿距离</option>
                     <option value="euler">欧拉距离</option>
                 </select>
-                <br><br>
+                <br>
                 <button type="button" v-on:click.prevent="getRunData">submit</button>
             </form> 
         </div>
         <div class = "pic_area">
-
             <div class="show_area">
                 <div class = "canvas_area">
-                    <canvas id="Dijkstra" ></canvas>
+                    <canvas id="Dijkstra" width="800" height="600"></canvas>
                 </div>   
                 <div class = "bt"> 
-                    <button type="button" v-on:click.prevent="drawDijkstra">绘制Dijkstra算法图像</button>
+                    <button  class = "bti" type="button" v-on:click.prevent="drawDijkstra">Dijkstra算法图像</button>
                 </div>
             </div>
         
             <div class = "show_area">
                 <div class = "canvas_area">
-                    <canvas id="Astar"></canvas>
+                    <canvas id="Astar" width="800" height="600"></canvas>
                 </div>
                 <div class = "bt"> 
-                    <button type="button" v-on:click.prevent="drawAstar">绘制A*算法图像</button>
+                    <button class = "bti" type="button" v-on:click.prevent="drawAstar">A*算法图像</button>
                 </div>
             </div>
             
             <div class = "show_area">
                 <div class = "canvas_area">
-                    <canvas id="DijkstraAstar"></canvas>
+                    <canvas id="DijkstraAstar" width="800" height="600"></canvas>
                 </div>
                 <div class = "bt"> 
-                    <button type="button" v-on:click.prevent="drawMoA">绘制DijkstraA*算法图像</button>
+                    <button  class = "bti" type="button" v-on:click.prevent="drawMoA">MOA*算法图像</button>
                 </div>
             </div>
+
+            <div class = "show_area">
+                <div class = "canvas_area">
+                    <canvas id="BFS" width="800" height="600"></canvas>
+                </div>
+                <div class = "bt"> 
+                    <button  class = "bti" type="button" v-on:click.prevent="drawBFS">BFS算法图像</button>
+                </div>
+            </div>
+
         </div>
     </div>
 </body>
@@ -134,7 +156,12 @@ var watchExampleVM = new Vue({
     startY: 0,
     targetX: 40, 
     targetY: 40,
-    answer:'',
+    djiData:Object,
+    astarData:Object,
+    moaData:Object,
+    bfsData:Object,
+    feasibleMap:Object,
+    costMap:Object,
   },
   methods: {
         getRunData: function () {
@@ -153,21 +180,79 @@ var watchExampleVM = new Vue({
             })
             .then(function (response) {
                 alert("send");
-                console.log(response);
+                djiData = response.data.retData.Dijkstra
+                astarData = response.data.retData.As
+                moaData = response.data.retData.MOA
+                bfsData = response.data.retData.BFS
+                feasibleMap = response.data.feasibleMap
+                costMap = response.data.costMap
+
+                console.log(djiData);
+                console.log(astarData);
+                console.log(moaData);
+                console.log(bfsData);   
+                console.log(feasibleMap)          
+                console.log(costMap) 
+
             })
             .catch(function (error) {
                 alert(error);
                 console.log(error);
             });
         },
+        
         drawDijkstra:function(){
-
+            this.drawPic(djiData,'Dijkstra')
+            //alert("fuck")
         },
         drawAstar:function(){
-
+            this.drawPic(astarData,'Astar')
+            //alert("fuck")
         },
         drawMoA:function(){
-
+           this.drawPic(moaData,'DijkstraAstar')
+           //alert("fuck")
+        },
+        drawBFS:function(){
+           this.drawPic(bfsData,'BFS')
+           //alert("fuck")
+        },
+        drawPic:function(data, elementId){
+            const canvas = document.getElementById(elementId);
+            const ctx = canvas.getContext('2d');
+            this.initPic(elementId);
+            ctx.fillStyle = 'green';
+            ctxSt = (800-this.cols*10)/2
+            ctxEd = (600-this.rows*10)/2
+            console.log(data.tract)
+            let count = 0
+            window.setInterval(function(){
+                    if (count === data.tract.length){return}
+                    ele = data.tract[count]
+                    ctx.fillRect(ctxSt+ele[0]*10,ctxEd+ele[1]*10,10,10)
+                    ctx.strokeRect(ctxSt+ele[0]*10,ctxEd+ele[1]*10,10,10)
+                    count++
+                },8)
+        },
+        initPic:function(elementId) {
+            const canvas = document.getElementById(elementId);
+            const ctx = canvas.getContext('2d');
+            ctxSt = (800-this.cols*10)/2
+            ctxEd = (600-this.rows*10)/2
+            ctx.clearRect(0, 0, 800, 600)
+            for(i=0;i<this.rows;i++){
+                for(j=0;j<this.cols;j++){
+                    rate = costMap[i][j]/(this.costH-this.costL)
+                    ctx.fillStyle = "rgba(102, 102, 255, "+rate+")";
+                    ctx.fillRect(ctxSt+i*10, ctxEd+j*10, 10, 10)
+                    ctx.strokeRect(ctxSt+i*10, ctxEd+j*10, 10, 10)
+                    if (feasibleMap[i][j]===1){
+                        ctx.fillStyle = 'black';
+                        ctx.fillRect(ctxSt+i*10, ctxEd+j*10, 10, 10)
+                    }
+                }
+            }
+            
         }
     }
 })

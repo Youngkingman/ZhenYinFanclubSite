@@ -30,11 +30,19 @@ func RecordSelectData(c *gin.Context) {
 	var formdata CompareParam
 	// ShouldBind 和 Bind 类似，不过会在出错时退出而不是返回400状态码
 	c.BindJSON(&formdata)
-	retData := algorithm.Compare(formdata.Rows, formdata.Cols,
+	retData, feasibleMap, costMap := algorithm.Compare(formdata.Rows, formdata.Cols,
 		formdata.Dense, formdata.CostLow, formdata.CostHigh,
 		[2]int{formdata.StartPointX, formdata.StartPointY},
 		[2]int{formdata.TargetPointX, formdata.TargetPointY}, 0,
 	)
-
-	c.JSON(200, retData)
+	retMap := struct {
+		RetData     map[string]interface{} `json:"retData"`
+		FeasibleMap [][]int                `json:"feasibleMap"`
+		CostMap     [][]int                `json:"costMap"`
+	}{
+		RetData:     retData,
+		FeasibleMap: feasibleMap,
+		CostMap:     costMap,
+	}
+	c.JSON(200, retMap)
 }

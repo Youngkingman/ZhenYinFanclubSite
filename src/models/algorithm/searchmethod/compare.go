@@ -20,9 +20,11 @@ var SaveDataFlag bool = false
 
 	@author:
 */
-func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, id int) (retData []interface{}) {
+func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, id int) (retData map[string]interface{}, Feasible [][]int, CostMap [][]int) {
+	retData = make(map[string]interface{})
 	fmt.Println("random map is generating...")
 	feasibleMap, retMap := MapGenerator(row, col, dense, costL, costH)
+	Feasible, CostMap = feasibleMap, retMap
 	filename := time.Now().Format("200601021545")
 	if SaveDataFlag {
 		datatrans.OutputMat(filename, feasibleMap, retMap, id)
@@ -36,9 +38,10 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		c1, s1, t1 := DijkstraForGrid(feasibleMap, retMap, start, end)
 		fmt.Println("Task of Dijkstra serch is over,the total step is", s1, "and the cost is", c1)
 		data := make(map[string]interface{})
-		data["costDi"] = c1
-		data["totalDi"] = s1
-		data["tractDi"] = t1
+		data["Di"] = 1
+		data["cost"] = c1
+		data["total"] = s1
+		data["tract"] = t1
 		if SaveDataFlag {
 			datatrans.OutputTract(filename+"_Dijkstra_", t1, id)
 		}
@@ -49,9 +52,10 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		c2, s2, t2 := AstarSearch(feasibleMap, retMap, start, end, HalmintanDistance)
 		fmt.Println("Task of A* search is over, the total step is", s2, "and the cost is", c2)
 		data := make(map[string]interface{})
-		data["costAs"] = c2
-		data["totalAs"] = s2
-		data["tractAs"] = t2
+		data["As"] = 1
+		data["cost"] = c2
+		data["total"] = s2
+		data["tract"] = t2
 		if SaveDataFlag {
 			datatrans.OutputTract(filename+"_Astar_", t2, id)
 		}
@@ -62,9 +66,10 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		c3, s3, t3 := AstarSearchDijkstra(feasibleMap, retMap, start, end, HalmintanDistance)
 		fmt.Println("Task of Dijkstra with A* is over, the total step is", s3, "and the cost is", c3)
 		data := make(map[string]interface{})
-		data["costMOA"] = c3
-		data["totalMOA"] = s3
-		data["tractMOA"] = t3
+		data["MOA"] = 1
+		data["cost"] = c3
+		data["total"] = s3
+		data["tract"] = t3
 		if SaveDataFlag {
 			datatrans.OutputTract(filename+"_DijkstraAstar_", t3, id)
 		}
@@ -75,9 +80,10 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		c3, s3, t3 := BfsSearch(feasibleMap, retMap, start, end)
 		fmt.Println("Task of bfs is over, the total step is", s3, "and the cost is", c3)
 		data := make(map[string]interface{})
-		data["costBFS"] = c3
-		data["totalBFS"] = s3
-		data["tractBFS"] = t3
+		data["BFS"] = 1
+		data["cost"] = c3
+		data["total"] = s3
+		data["tract"] = t3
 		if SaveDataFlag {
 			datatrans.OutputTract(filename+"_bfs_", t3, id)
 		}
@@ -89,8 +95,20 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 	fmt.Println("Gorotinues finish tasks")
 	close(datachan)
 	for v := range datachan {
-		retData = append(retData, v)
-		//fmt.Println(v)
+		//retData = append(retData, v)
+		if _, has := v["BFS"]; has {
+			retData["BFS"] = v
+		}
+		if _, has := v["MOA"]; has {
+			retData["MOA"] = v
+		}
+		if _, has := v["As"]; has {
+			retData["As"] = v
+		}
+		if _, has := v["Di"]; has {
+			retData["Dijkstra"] = v
+		}
+
 	}
 	return
 }
