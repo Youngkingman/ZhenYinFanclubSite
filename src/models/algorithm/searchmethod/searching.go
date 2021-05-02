@@ -448,7 +448,6 @@ func AstarSearch(feasibleMap [][]int, costG [][]int, start [2]int, target [2]int
 					Gvalue: gval,
 					Hvalue: hval,
 				}
-
 				heap.Push(&setA, &item)
 			}
 		}
@@ -553,7 +552,6 @@ func AstarSearchDijkstra(feasibleMap [][]int, costG [][]int, start [2]int, targe
 					Gvalue: gval,
 					Hvalue: hval,
 				}
-
 				heap.Push(&setA, &item)
 			}
 		}
@@ -740,6 +738,233 @@ func BidirectionAstarDijkstra(feasibleMap [][]int, costG [][]int, start [2]int, 
 	return
 }
 
+//no concurreny version
+func BidirectionAstarDijkstra_Normal(feasibleMap [][]int, costG [][]int, start [2]int, target [2]int, hvalue func(int, int, int, int) int64) (fcost int64, step int64, tract [][2]int) {
+	feasibleG := make([][]int, 0)
+	for _, v := range feasibleMap {
+		arr := make([]int, len(feasibleMap[0]))
+		for k, _ := range v {
+			arr[k] = v[k]
+		}
+		feasibleG = append(feasibleG, arr)
+	}
+	setA := make(PriorityQueue, 0)
+	setB := make(PriorityQueue, 0)
+	relaxedA := make([]Node, 0)
+	relaxedB := make([]Node, 0)
+	m := len(feasibleG)
+	if m == 0 {
+		return 0, 0, nil
+	}
+	n := len(feasibleG[0])
+	dpG := make([][]int64, 0)
+	//init the dp value
+	for i := 0; i < m; i++ {
+		arr := make([]int64, n)
+		for j, _ := range arr {
+			arr[j] = max
+		}
+		dpG = append(dpG, arr)
+	}
+	dpG[start[0]][start[1]] = 0
+	dpG[target[0]][target[1]] = 0
+	feasibleG[target[0]][target[1]] = 0 //somewhat gurantee the feasible
+	feasibleG[start[0]][start[1]] = 0
+	initItem := Node{
+		Cost:   0,
+		Id:     start[0]*n + start[1],
+		Parent: nil,
+		Gvalue: 0,
+		Hvalue: hvalue(start[0], start[1], target[0], target[1]),
+	}
+	initTarget := Node{
+		Cost:   0,
+		Id:     target[0]*n + target[1],
+		Parent: nil,
+		Gvalue: 0,
+		Hvalue: hvalue(start[0], start[1], target[0], target[1]),
+	}
+	//for dpG[target[0]][target[1]]=0, it should be add to the final
+	//initCost := int64(costG[target[0]][target[1]])
+	heap.Push(&setA, &initItem)
+	heap.Push(&setB, &initTarget)
+	stepA, stepB := 0, 0
+	//BFS for djkstra
+	//rowNeigbor, colNeigbor := []int{0, 1, -1}, []int{0, 1, -1} //8-connected,remains to be construct
+	rowNeigbor, colNeigbor := []int{1, -1}, []int{1, -1} //4-connected
+	for len(setA) > 0 && len(setB) > 0 {
+		relaxPointA := heap.Pop(&setA).(*Node)
+		relaxedA = append(relaxedA, *relaxPointA)
+		stepA++
+		idA := relaxPointA.Id
+		nowRowA, nowColA := idA/n, idA%n
+		if feasibleG[nowRowA][nowColA] == 2 && len(setB) > 0 {
+			goto DEALB
+		}
+		if len(setB) <= 0 {
+			continue
+		}
+		if feasibleG[nowRowA][nowColA] == 3 {
+			for len(setB) > 0 {
+				temp := heap.Pop(&setB).(*Node)
+				if temp.Id == idA {
+					fcost = dpG[nowRowA][nowColA] + int64(costG[target[0]][target[1]]) + int64(relaxPointA.Parent.Gvalue)
+					step = int64(stepA) + int64(stepB)
+					tractA := decodeTract(extract(relaxPointA), n)
+					tractB := decodeTract(extract(temp), n)
+					reverse(tractB)
+					tract = append(tract, tractB...)
+					tract = append(tract, tractA[1:]...)
+					return
+				}
+			}
+			for _, temp := range relaxedB {
+				if temp.Id == idA {
+					fcost = dpG[nowRowA][nowColA] + int64(costG[target[0]][target[1]]) + int64(relaxPointA.Parent.Gvalue)
+					step = int64(stepA) + int64(stepB)
+					tractA := decodeTract(extract(relaxPointA), n)
+					tractB := decodeTract(extract(&temp), n)
+					reverse(tractB)
+					tract = append(tract, tractB...)
+					tract = append(tract, tractA[1:]...)
+					return
+				}
+			}
+			return
+		}
+		feasibleG[nowRowA][nowColA] = 2
+
+		if nowRowA == target[0] && nowColA == target[1] {
+			fcost = dpG[nowRowA][nowColA]
+			step = int64(stepA) + int64(stepB)
+			tractCompress := extract(relaxPointA)
+			tract = decodeTract(tractCompress, n)
+			return
+		}
+		for _, v1 := range rowNeigbor {
+			tempX, tempY := nowRowA+v1, nowColA
+			//inside the boundary & unblocked & unrelaxed
+			if tempX < m && tempX >= 0 && tempY < n && tempY >= 0 && feasibleG[tempX][tempY] == 0 {
+				gval := min(dpG[nowRowA][nowColA]+int64(costG[tempX][tempY]), dpG[tempX][tempY])
+				//gval := dpG[nowRow][nowCol] + costG[tempX][tempY]
+				hval := hvalue(tempX, tempY, target[0], target[1])
+				dpG[tempX][tempY] = gval
+				item := Node{
+					Cost:   gval + hval,
+					Id:     tempX*n + tempY,
+					Parent: relaxPointA,
+					Gvalue: gval,
+					Hvalue: hval,
+				}
+
+				heap.Push(&setA, &item)
+			}
+		}
+		for _, v1 := range colNeigbor {
+			tempX, tempY := nowRowA, nowColA+v1
+			//inside the boundary & unblocked & unrelaxed
+			if tempX < m && tempX >= 0 && tempY < n && tempY >= 0 && feasibleG[tempX][tempY] == 0 {
+				gval := min(dpG[nowRowA][nowColA]+int64(costG[tempX][tempY]), dpG[tempX][tempY])
+				//gval := dpG[nowRow][nowCol] + costG[tempX][tempY]
+				hval := hvalue(tempX, tempY, target[0], target[1])
+				dpG[tempX][tempY] = gval
+				item := Node{
+					Cost:   gval + hval,
+					Id:     tempX*n + tempY,
+					Parent: relaxPointA,
+					Gvalue: gval,
+					Hvalue: hval,
+				}
+				heap.Push(&setA, &item)
+			}
+		}
+	DEALB:
+		relaxPointB := heap.Pop(&setB).(*Node)
+		relaxedB = append(relaxedB, *relaxPointB)
+		stepB++
+		idB := relaxPointB.Id
+		nowRowB, nowColB := idB/n, idB%n
+		if feasibleG[nowRowB][nowColB] == 3 {
+			continue
+		}
+		if feasibleG[nowRowB][nowColB] == 2 {
+			for len(setA) > 0 {
+				temp := heap.Pop(&setA).(*Node)
+				if temp.Id == idB {
+					fcost = dpG[nowRowB][nowColB] + int64(costG[target[0]][target[1]]) + int64(relaxPointB.Parent.Gvalue)
+					step = int64(stepA) + int64(stepB)
+					tractB := decodeTract(extract(relaxPointB), n)
+					tractA := decodeTract(extract(temp), n)
+					reverse(tractB)
+					tract = append(tract, tractB...)
+					tract = append(tract, tractA[1:]...)
+					return
+				}
+			}
+			for _, temp := range relaxedA {
+				if temp.Id == idB {
+					fcost = dpG[nowRowB][nowColB] + int64(costG[target[0]][target[1]]) + int64(relaxPointB.Parent.Gvalue)
+					step = int64(stepA) + int64(stepB)
+					tractB := decodeTract(extract(relaxPointB), n)
+					tractA := decodeTract(extract(&temp), n)
+					reverse(tractB)
+					tract = append(tract, tractB...)
+					tract = append(tract, tractA[1:]...)
+					return
+				}
+			}
+			return
+		}
+		feasibleG[nowRowB][nowColB] = 3
+
+		if nowRowB == start[0] && nowColB == start[1] {
+			fcost = dpG[nowRowB][nowColB] + int64(costG[target[0]][target[1]]-costG[start[0]][start[1]])
+			step = int64(stepA) + int64(stepB)
+			tractCompress := extract(relaxPointB)
+			tract = decodeTract(tractCompress, n)
+			return
+		}
+		for _, v1 := range rowNeigbor {
+			tempX, tempY := nowRowB+v1, nowColB
+			//inside the boundary & unblocked & unrelaxed
+			if tempX < m && tempX >= 0 && tempY < n && tempY >= 0 && feasibleG[tempX][tempY] == 0 {
+				gval := min(dpG[nowRowB][nowColB]+int64(costG[tempX][tempY]), dpG[tempX][tempY])
+				//gval := dpG[nowRow][nowCol] + costG[tempX][tempY]
+				hval := hvalue(tempX, tempY, start[0], start[1])
+				dpG[tempX][tempY] = gval
+				item := Node{
+					Cost:   gval + hval,
+					Id:     tempX*n + tempY,
+					Parent: relaxPointB,
+					Gvalue: gval,
+					Hvalue: hval,
+				}
+
+				heap.Push(&setB, &item)
+			}
+		}
+		for _, v1 := range colNeigbor {
+			tempX, tempY := nowRowB, nowColB+v1
+			//inside the boundary & unblocked & unrelaxed
+			if tempX < m && tempX >= 0 && tempY < n && tempY >= 0 && feasibleG[tempX][tempY] == 0 {
+				gval := min(dpG[nowRowB][nowColB]+int64(costG[tempX][tempY]), dpG[tempX][tempY])
+				//gval := dpG[nowRow][nowCol] + costG[tempX][tempY]
+				hval := hvalue(tempX, tempY, start[0], start[1])
+				dpG[tempX][tempY] = gval
+				item := Node{
+					Cost:   gval + hval,
+					Id:     tempX*n + tempY,
+					Parent: relaxPointB,
+					Gvalue: gval,
+					Hvalue: hval,
+				}
+				heap.Push(&setB, &item)
+			}
+		}
+	}
+	return
+}
+
 //Alternative in function A*, the F value evaluation method
 func HalmintanDistance(currentX, currentY, targetX, targetY int) int64 {
 	abs1 := currentX - targetX
@@ -793,11 +1018,51 @@ func extract(target *Node) []int {
 	return ret
 }
 
+//reverse extract
+func reverseExtract(target *Node) []int {
+	temp := Node{}
+	var reverse func(target *Node)
+	reverse = func(target *Node) {
+		if target.Parent == nil {
+			temp = *target
+			target.Parent.Parent = target
+			target.Parent = nil
+			return
+		}
+		reverse(target.Parent)
+		target.Parent.Parent = target
+		target.Parent = nil
+	}
+	reverse(target)
+	ret := make([]int, 0)
+	for &temp != nil {
+		ret = append(ret, temp.Id)
+		temp = *temp.Parent
+	}
+	return ret
+}
+
 //imply to decode the compress route of algorithm
 func decodeTract(tract []int, n int) (ret [][2]int) {
 	for _, v := range tract {
 		temp := [2]int{v / n, v % n}
 		ret = append(ret, temp)
+	}
+	return
+}
+
+//reverse the tract(seems there is a better way to reverse the listnode)
+func reverse(tract [][2]int) {
+	l := len(tract)
+	for i := 0; i < l/2; i++ {
+		tract[i], tract[l-1-i] = tract[l-1-i], tract[i]
+	}
+}
+
+//calculate cost from tract
+func calculatCost(tract [][2]int, costG [][]int) (ret int64) {
+	for _, val := range tract {
+		ret += int64(costG[val[0]][val[1]])
 	}
 	return
 }

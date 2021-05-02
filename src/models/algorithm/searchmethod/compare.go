@@ -76,16 +76,30 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		datachan <- data
 		wg.Done()
 	}()
+	// go func() {
+	// 	c3, s3, t3 := BfsSearch(feasibleMap, retMap, start, end)
+	// 	fmt.Println("Task of bfs is over, the total step is", s3, "and the cost is", c3)
+	// 	data := make(map[string]interface{})
+	// 	data["BFS"] = 1
+	// 	data["cost"] = c3
+	// 	data["total"] = s3
+	// 	data["tract"] = t3
+	// 	if SaveDataFlag {
+	// 		datatrans.OutputTract(filename+"_bfs_", t3, id)
+	// 	}
+	// 	datachan <- data
+	// 	wg.Done()
+	// }()
 	go func() {
-		c3, s3, t3 := BfsSearch(feasibleMap, retMap, start, end)
-		fmt.Println("Task of bfs is over, the total step is", s3, "and the cost is", c3)
+		c3, s3, t3 := BidirectionAstarDijkstra_Normal(feasibleMap, retMap, start, end, HalmintanDistance)
+		fmt.Println("Task of BIMOA* is over, the total step is", s3, "and the cost is", c3)
 		data := make(map[string]interface{})
-		data["BFS"] = 1
+		data["BIMOA"] = 1
 		data["cost"] = c3
 		data["total"] = s3
 		data["tract"] = t3
 		if SaveDataFlag {
-			datatrans.OutputTract(filename+"_bfs_", t3, id)
+			datatrans.OutputTract(filename+"_DijkstraAstar_", t3, id)
 		}
 		datachan <- data
 		wg.Done()
