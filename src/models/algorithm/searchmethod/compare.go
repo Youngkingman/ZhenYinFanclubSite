@@ -33,49 +33,49 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 	var wg sync.WaitGroup
 	datachan := make(chan map[string]interface{}, 10)
 
-	wg.Add(4)
-	go func() {
-		c1, s1, t1 := DijkstraForGrid(feasibleMap, retMap, start, end)
-		fmt.Println("Task of Dijkstra serch is over,the total step is", s1, "and the cost is", c1)
-		data := make(map[string]interface{})
-		data["Di"] = 1
-		data["cost"] = c1
-		data["total"] = s1
-		data["tract"] = t1
-		if SaveDataFlag {
-			datatrans.OutputTract(filename+"_Dijkstra_", t1, id)
-		}
-		datachan <- data
-		wg.Done()
-	}()
-	go func() {
-		c2, s2, t2 := AstarSearch(feasibleMap, retMap, start, end, HalmintanDistance)
-		fmt.Println("Task of A* search is over, the total step is", s2, "and the cost is", c2)
-		data := make(map[string]interface{})
-		data["As"] = 1
-		data["cost"] = c2
-		data["total"] = s2
-		data["tract"] = t2
-		if SaveDataFlag {
-			datatrans.OutputTract(filename+"_Astar_", t2, id)
-		}
-		datachan <- data
-		wg.Done()
-	}()
-	go func() {
-		c3, s3, t3 := AstarSearchDijkstra(feasibleMap, retMap, start, end, HalmintanDistance)
-		fmt.Println("Task of Dijkstra with A* is over, the total step is", s3, "and the cost is", c3)
-		data := make(map[string]interface{})
-		data["MOA"] = 1
-		data["cost"] = c3
-		data["total"] = s3
-		data["tract"] = t3
-		if SaveDataFlag {
-			datatrans.OutputTract(filename+"_DijkstraAstar_", t3, id)
-		}
-		datachan <- data
-		wg.Done()
-	}()
+	wg.Add(1)
+	// go func() {
+	// 	c1, s1, t1 := DijkstraForGrid(feasibleMap, retMap, start, end)
+	// 	fmt.Println("Task of Dijkstra serch is over,the total step is", s1, "and the cost is", c1)
+	// 	data := make(map[string]interface{})
+	// 	data["Di"] = 1
+	// 	data["cost"] = c1
+	// 	data["total"] = s1
+	// 	data["tract"] = t1
+	// 	if SaveDataFlag {
+	// 		datatrans.OutputTract(filename+"_Dijkstra_", t1, id)
+	// 	}
+	// 	datachan <- data
+	// 	wg.Done()
+	// }()
+	// go func() {
+	// 	c2, s2, t2 := AstarSearch(feasibleMap, retMap, start, end, HalmintanDistance)
+	// 	fmt.Println("Task of A* search is over, the total step is", s2, "and the cost is", c2)
+	// 	data := make(map[string]interface{})
+	// 	data["As"] = 1
+	// 	data["cost"] = c2
+	// 	data["total"] = s2
+	// 	data["tract"] = t2
+	// 	if SaveDataFlag {
+	// 		datatrans.OutputTract(filename+"_Astar_", t2, id)
+	// 	}
+	// 	datachan <- data
+	// 	wg.Done()
+	// }()
+	// go func() {
+	// 	c3, s3, t3 := AstarSearchDijkstra(feasibleMap, retMap, start, end, HalmintanDistance)
+	// 	fmt.Println("Task of Dijkstra with A* is over, the total step is", s3, "and the cost is", c3)
+	// 	data := make(map[string]interface{})
+	// 	data["MOA"] = 1
+	// 	data["cost"] = c3
+	// 	data["total"] = s3
+	// 	data["tract"] = t3
+	// 	if SaveDataFlag {
+	// 		datatrans.OutputTract(filename+"_DijkstraAstar_", t3, id)
+	// 	}
+	// 	datachan <- data
+	// 	wg.Done()
+	// }()
 	// go func() {
 	// 	c3, s3, t3 := BfsSearch(feasibleMap, retMap, start, end)
 	// 	fmt.Println("Task of bfs is over, the total step is", s3, "and the cost is", c3)
@@ -91,10 +91,10 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 	// 	wg.Done()
 	// }()
 	go func() {
-		c3, s3, t3 := BidirectionAstarDijkstra_Normal(feasibleMap, retMap, start, end, HalmintanDistance)
-		fmt.Println("Task of BIMOA* is over, the total step is", s3, "and the cost is", c3)
+		c3, s3, t3 := JPS(feasibleMap, 19, start, end, _HalmintanDistance)
+		fmt.Println("Task of JPS is over, the total step is", s3, "and the cost is", c3)
 		data := make(map[string]interface{})
-		data["BIMOA"] = 1
+		data["JPS"] = 1
 		data["cost"] = c3
 		data["total"] = s3
 		data["tract"] = t3
@@ -104,6 +104,20 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		datachan <- data
 		wg.Done()
 	}()
+	// go func() {
+	// 	c3, s3, t3 := BidirectionAstarDijkstra_Normal(feasibleMap, retMap, start, end, HalmintanDistance)
+	// 	fmt.Println("Task of BIMOA* is over, the total step is", s3, "and the cost is", c3)
+	// 	data := make(map[string]interface{})
+	// 	data["BIMOA"] = 1
+	// 	data["cost"] = c3
+	// 	data["total"] = s3
+	// 	data["tract"] = t3
+	// 	if SaveDataFlag {
+	// 		datatrans.OutputTract(filename+"_DijkstraAstar_", t3, id)
+	// 	}
+	// 	datachan <- data
+	// 	wg.Done()
+	// }()
 	fmt.Println("Gorotinues are working")
 	wg.Wait()
 	fmt.Println("Gorotinues finish tasks")
@@ -121,6 +135,9 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		}
 		if _, has := v["Di"]; has {
 			retData["Dijkstra"] = v
+		}
+		if _, has := v["JPS"]; has {
+			retData["JPS"] = v
 		}
 
 	}

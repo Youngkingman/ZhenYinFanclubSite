@@ -1,6 +1,8 @@
 package algorithm
 
-import "container/heap"
+import (
+	"container/heap"
+)
 
 const (
 	// 未被占据的结点
@@ -34,21 +36,25 @@ func JPS(feasibleMap [][]int, costVert int, start [2]int, target [2]int, hvalue 
 	n := len(feasibleG[0])
 	feasibleG[target[0]][target[1]] = 0 //somewhat gurantee the feasible
 	//部分内置函數
-	getForceNeigborList := func(current _Node, m Motion, jumpFlag int) (forceList []Motion) {
+	getForceNeigborList := func(current _Node, v Motion, jumpFlag int) (forceList []Motion) {
 		if jumpFlag == 0 { //垂直跳躍,或許要加界外判斷
-			if feasibleG[current.X][current.Y+1] == int(Occupied) && feasibleG[current.X+m.Dealt_X][current.Y+1] == int(Unoccupied) {
-				forceList = append(forceList, Motion{m.Dealt_X, 1, 1.414})
+			if current.Y+1 < n && current.X+v.Dealt_X >= 0 && current.X+v.Dealt_X < m &&
+				feasibleG[current.X][current.Y+1] == int(Occupied) && feasibleG[current.X+v.Dealt_X][current.Y+1] == int(Unoccupied) {
+				forceList = append(forceList, Motion{v.Dealt_X, 1, 1.414})
 			}
-			if feasibleG[current.X][current.Y-1] == int(Occupied) && feasibleG[current.X+m.Dealt_X][current.Y-1] == int(Unoccupied) {
-				forceList = append(forceList, Motion{m.Dealt_X, -1, 1.414})
+			if current.Y-1 >= 0 && current.X+v.Dealt_X >= 0 && current.X+v.Dealt_X < m &&
+				feasibleG[current.X][current.Y-1] == int(Occupied) && feasibleG[current.X+v.Dealt_X][current.Y-1] == int(Unoccupied) {
+				forceList = append(forceList, Motion{v.Dealt_X, -1, 1.414})
 			}
 		}
 		if jumpFlag == 1 { //水平跳躍，或需要加界外判斷
-			if feasibleG[current.X+1][current.Y] == int(Occupied) && feasibleG[current.X+1][current.Y+m.Dealt_Y] == int(Unoccupied) {
-				forceList = append(forceList, Motion{1, m.Dealt_Y, 1.414})
+			if current.X+1 < m && current.Y+v.Dealt_Y >= 0 && current.Y+v.Dealt_Y < n &&
+				feasibleG[current.X+1][current.Y] == int(Occupied) && feasibleG[current.X+1][current.Y+v.Dealt_Y] == int(Unoccupied) {
+				forceList = append(forceList, Motion{1, v.Dealt_Y, 1.414})
 			}
-			if feasibleG[current.X-1][current.Y] == int(Occupied) && feasibleG[current.X-1][current.Y+m.Dealt_Y] == int(Unoccupied) {
-				forceList = append(forceList, Motion{-1, m.Dealt_Y, 1.414})
+			if current.X-1 >= 0 && current.Y+v.Dealt_Y >= 0 && current.Y+v.Dealt_Y < n &&
+				feasibleG[current.X-1][current.Y] == int(Occupied) && feasibleG[current.X-1][current.Y+v.Dealt_Y] == int(Unoccupied) {
+				forceList = append(forceList, Motion{-1, v.Dealt_Y, 1.414})
 			}
 		}
 		return
@@ -202,8 +208,32 @@ func JPS(feasibleMap [][]int, costVert int, start [2]int, target [2]int, hvalue 
 				p.Cost = p.Gvalue + hvalue(p.X, p.Y, target[0], target[1])
 			}
 		}
-
-		return
 	}
 	return
+}
+
+//Alternative in function JPS, the F value evaluation method
+func _HalmintanDistance(currentX, currentY, targetX, targetY int) int {
+	abs1 := currentX - targetX
+	if abs1 < 0 {
+		abs1 = -abs1
+	}
+	abs2 := currentY - targetY
+	if abs2 < 0 {
+		abs2 = -abs2
+	}
+	return abs1 + abs2
+}
+
+//Alternative in function JPS, the F value evaluation method
+func _ChebyshevDistance(currentX, currentY, targetX, targetY int) int {
+	abs1 := currentX - targetX
+	if abs1 < 0 {
+		abs1 = -abs1
+	}
+	abs2 := currentY - targetY
+	if abs2 < 0 {
+		abs2 = -abs2
+	}
+	return int(float64(abs1+abs2) + 1.414213*float64(min(int64(abs1), int64(abs2))))
 }
