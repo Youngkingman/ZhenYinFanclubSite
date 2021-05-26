@@ -20,6 +20,7 @@ const (
 //JPS A*(8 directions), good for balance map
 //更新節點的時候沒有把東西放進去，比較麻煩，但是光出數據沒問題
 func JPS(feasibleMap [][]int, costVert int, start [2]int, target [2]int, hvalue func(int, int, int, int) int) (fcost int, step int, tract [][2]int) {
+	//地图副本
 	feasibleG := make([][]int, 0)
 	for _, v := range feasibleMap {
 		arr := make([]int, len(feasibleMap[0]))
@@ -34,10 +35,11 @@ func JPS(feasibleMap [][]int, costVert int, start [2]int, target [2]int, hvalue 
 		return 0, 0, nil
 	}
 	n := len(feasibleG[0])
+
 	feasibleG[target[0]][target[1]] = 0 //somewhat gurantee the feasible
 	//部分内置函數
 	getForceNeigborList := func(current _Node, v Motion, jumpFlag int) (forceList []Motion) {
-		if jumpFlag == 0 { //垂直跳躍,或許要加界外判斷
+		if jumpFlag == 0 { //带判断的垂直跳跃
 			if current.Y+1 < n && current.X+v.Dealt_X >= 0 && current.X+v.Dealt_X < m &&
 				feasibleG[current.X][current.Y+1] == int(Occupied) && feasibleG[current.X+v.Dealt_X][current.Y+1] == int(Unoccupied) {
 				forceList = append(forceList, Motion{v.Dealt_X, 1, 1.414})
@@ -47,7 +49,7 @@ func JPS(feasibleMap [][]int, costVert int, start [2]int, target [2]int, hvalue 
 				forceList = append(forceList, Motion{v.Dealt_X, -1, 1.414})
 			}
 		}
-		if jumpFlag == 1 { //水平跳躍，或需要加界外判斷
+		if jumpFlag == 1 { //带判断的水平跳跃
 			if current.X+1 < m && current.Y+v.Dealt_Y >= 0 && current.Y+v.Dealt_Y < n &&
 				feasibleG[current.X+1][current.Y] == int(Occupied) && feasibleG[current.X+1][current.Y+v.Dealt_Y] == int(Unoccupied) {
 				forceList = append(forceList, Motion{1, v.Dealt_Y, 1.414})
@@ -91,6 +93,7 @@ func JPS(feasibleMap [][]int, costVert int, start [2]int, target [2]int, hvalue 
 		if flag {
 			break
 		}
+
 		relaxPoint := heap.Pop(&openList).(*_Node)
 		step++
 

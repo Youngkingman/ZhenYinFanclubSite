@@ -33,7 +33,7 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 	var wg sync.WaitGroup
 	datachan := make(chan map[string]interface{}, 10)
 
-	wg.Add(1)
+	wg.Add(4)
 	// go func() {
 	// 	c1, s1, t1 := DijkstraForGrid(feasibleMap, retMap, start, end)
 	// 	fmt.Println("Task of Dijkstra serch is over,the total step is", s1, "and the cost is", c1)
@@ -48,20 +48,34 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 	// 	datachan <- data
 	// 	wg.Done()
 	// }()
-	// go func() {
-	// 	c2, s2, t2 := AstarSearch(feasibleMap, retMap, start, end, HalmintanDistance)
-	// 	fmt.Println("Task of A* search is over, the total step is", s2, "and the cost is", c2)
-	// 	data := make(map[string]interface{})
-	// 	data["As"] = 1
-	// 	data["cost"] = c2
-	// 	data["total"] = s2
-	// 	data["tract"] = t2
-	// 	if SaveDataFlag {
-	// 		datatrans.OutputTract(filename+"_Astar_", t2, id)
-	// 	}
-	// 	datachan <- data
-	// 	wg.Done()
-	// }()
+	go func() {
+		c2, s2, t2 := AstarSearch(feasibleMap, retMap, start, end, HalmintanDistance)
+		fmt.Println("Task of A* search is over, the total step is", s2, "and the cost is", c2)
+		data := make(map[string]interface{})
+		data["As"] = 1
+		data["cost"] = c2
+		data["total"] = s2
+		data["tract"] = t2
+		if SaveDataFlag {
+			datatrans.OutputTract(filename+"_Astar_", t2, id)
+		}
+		datachan <- data
+		wg.Done()
+	}()
+	go func() {
+		c2, s2, t2 := AstarSearch(feasibleMap, retMap, start, end, ChebyshevDistance)
+		fmt.Println("Task of A*C search is over, the total step is", s2, "and the cost is", c2)
+		data := make(map[string]interface{})
+		data["AsC"] = 1
+		data["cost"] = c2
+		data["total"] = s2
+		data["tract"] = t2
+		if SaveDataFlag {
+			datatrans.OutputTract(filename+"_Astar_", t2, id)
+		}
+		datachan <- data
+		wg.Done()
+	}()
 	// go func() {
 	// 	c3, s3, t3 := AstarSearchDijkstra(feasibleMap, retMap, start, end, HalmintanDistance)
 	// 	fmt.Println("Task of Dijkstra with A* is over, the total step is", s3, "and the cost is", c3)
@@ -76,23 +90,23 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 	// 	datachan <- data
 	// 	wg.Done()
 	// }()
-	// go func() {
-	// 	c3, s3, t3 := BfsSearch(feasibleMap, retMap, start, end)
-	// 	fmt.Println("Task of bfs is over, the total step is", s3, "and the cost is", c3)
-	// 	data := make(map[string]interface{})
-	// 	data["BFS"] = 1
-	// 	data["cost"] = c3
-	// 	data["total"] = s3
-	// 	data["tract"] = t3
-	// 	if SaveDataFlag {
-	// 		datatrans.OutputTract(filename+"_bfs_", t3, id)
-	// 	}
-	// 	datachan <- data
-	// 	wg.Done()
-	// }()
 	go func() {
-		c3, s3, t3 := JPS(feasibleMap, 19, start, end, _HalmintanDistance)
-		fmt.Println("Task of JPS is over, the total step is", s3, "and the cost is", c3)
+		c3, s3, t3 := BfsSearch(feasibleMap, retMap, start, end)
+		fmt.Println("Task of bfs is over, the total step is", s3, "and the cost is", c3)
+		data := make(map[string]interface{})
+		data["BFS"] = 1
+		data["cost"] = c3
+		data["total"] = s3
+		data["tract"] = t3
+		if SaveDataFlag {
+			datatrans.OutputTract(filename+"_bfs_", t3, id)
+		}
+		datachan <- data
+		wg.Done()
+	}()
+	go func() {
+		c3, s3, t3 := JPS(feasibleMap, 10, start, end, _HalmintanDistance)
+		fmt.Println("Task of JPS is over, the total step is", s3, "and the cost is", c3, t3)
 		data := make(map[string]interface{})
 		data["JPS"] = 1
 		data["cost"] = c3
