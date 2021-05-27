@@ -49,8 +49,10 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 	// 	wg.Done()
 	// }()
 	go func() {
+		tstart := time.Now()
 		c2, s2, t2 := AstarSearch(feasibleMap, retMap, start, end, HalmintanDistance)
-		fmt.Println("Task of A* search is over, the total step is", s2, "and the cost is", c2)
+		timecost := time.Since(tstart)
+		fmt.Println("Task of A* search is over, the total step is", s2, "and the cost is", c2, " time expired ", timecost)
 		data := make(map[string]interface{})
 		data["As"] = 1
 		data["cost"] = c2
@@ -63,8 +65,10 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		wg.Done()
 	}()
 	go func() {
+		tstart := time.Now()
 		c2, s2, t2 := AstarSearch(feasibleMap, retMap, start, end, ChebyshevDistance)
-		fmt.Println("Task of A*C search is over, the total step is", s2, "and the cost is", c2)
+		timecost := time.Since(tstart)
+		fmt.Println("Task of A*C search is over, the total step is", s2, "and the cost is", c2, " time expired ", timecost)
 		data := make(map[string]interface{})
 		data["AsC"] = 1
 		data["cost"] = c2
@@ -91,8 +95,10 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 	// 	wg.Done()
 	// }()
 	go func() {
+		tstart := time.Now()
 		c3, s3, t3 := BfsSearch(feasibleMap, retMap, start, end)
-		fmt.Println("Task of bfs is over, the total step is", s3, "and the cost is", c3)
+		timecost := time.Since(tstart)
+		fmt.Println("Task of bfs is over, the total step is", s3, "and the cost is", c3, " time expired ", timecost)
 		data := make(map[string]interface{})
 		data["BFS"] = 1
 		data["cost"] = c3
@@ -105,8 +111,10 @@ func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, i
 		wg.Done()
 	}()
 	go func() {
+		tstart := time.Now()
 		c3, s3, t3 := JPS(feasibleMap, 10, start, end, _HalmintanDistance)
-		fmt.Println("Task of JPS is over, the total step is", s3, "and the cost is", c3, t3)
+		timecost := time.Since(tstart)
+		fmt.Println("Task of JPS is over, the total step is", s3, "and the cost is", c3, t3, " time expired ", timecost)
 		data := make(map[string]interface{})
 		data["JPS"] = 1
 		data["cost"] = c3
