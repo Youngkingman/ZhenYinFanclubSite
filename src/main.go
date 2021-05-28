@@ -22,6 +22,6 @@ func main() {
 	// f, _ := os.Create("trace.out")
 	// defer f.Close()
 	// trace.Start(f)
-	algorithm.Compare(500, 500, 0.20, 10, 11, [2]int{2, 1}, [2]int{488, 479}, 0)
+	algorithm.Compare(500, 500, 0.2, 10, 11, [2]int{1, 1}, [2]int{495, 495}, 0)
 	// trace.Stop()
 }
