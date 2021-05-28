@@ -22,7 +22,7 @@ var SaveDataFlag bool = false
 */
 func Compare(row, col int, dense float64, costL, costH int, start, end [2]int, id int) (retData map[string]interface{}, Feasible [][]int, CostMap [][]int) {
 	retData = make(map[string]interface{})
-	fmt.Println("random map is generating...")
+	fmt.Println("random map is generating....")
 	feasibleMap, retMap := MapGenerator(row, col, dense, costL, costH)
 	Feasible, CostMap = feasibleMap, retMap
 	filename := time.Now().Format("200601021545")
